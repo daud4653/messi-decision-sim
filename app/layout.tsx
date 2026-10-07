@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import localFont from "next/font/local";
 import { Navigation } from "@/components/Navigation";
 import "./globals.css";
@@ -31,11 +32,18 @@ export default function RootLayout({
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
         <header className="site-header">
-          <Link href="/" className="brand">
-            LP<span className="brand-slash">//</span>
-            <span>
-              LA PULGA<small>DECISION SIMULATOR</small>
-            </span>
+          <Link
+            href="/"
+            className="brand brand-sticker"
+            aria-label="La Pulga — home"
+          >
+            <Image
+              src="/stickers/sticker.png"
+              alt="Goat standing on a number 10 football"
+              width={66}
+              height={88}
+              preload
+            />
           </Link>
           <Navigation />
           <span className="edition">

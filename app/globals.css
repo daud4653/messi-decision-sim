@@ -2022,3 +2022,22 @@ footer {
     font-size: 16px;
   }
 }
+
+.brand-sticker {
+  flex-shrink: 0;
+  align-self: center;
+  line-height: 0;
+}
+.brand-sticker img {
+  display: block;
+  width: 66px;
+  height: 88px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+@media (max-width: 700px) {
+  .brand-sticker img {
+    width: 54px;
+    height: 72px;
+  }
+}
