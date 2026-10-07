@@ -7,8 +7,7 @@ const optional = z.preprocess(
 const url = z.preprocess((v) => (v === "" ? undefined : v), z.url().optional());
 const schema = z
   .object({
-    NEXT_PUBLIC_SUPABASE_URL: url,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: optional,
+    SUPABASE_URL: url,
     SUPABASE_SERVICE_ROLE_KEY: optional,
     GEMINI_API_KEY: optional,
     GROQ_API_KEY: optional,
@@ -19,10 +18,10 @@ const schema = z
     OLLAMA_MODEL: optional,
   })
   .superRefine((v, c) => {
-    if (v.SUPABASE_SERVICE_ROLE_KEY && !v.NEXT_PUBLIC_SUPABASE_URL)
+    if (v.SUPABASE_SERVICE_ROLE_KEY && !v.SUPABASE_URL)
       c.addIssue({
         code: "custom",
-        message: "SUPABASE_SERVICE_ROLE_KEY requires NEXT_PUBLIC_SUPABASE_URL",
+        message: "SUPABASE_SERVICE_ROLE_KEY requires SUPABASE_URL",
       });
   });
 export const env = schema.parse(process.env);

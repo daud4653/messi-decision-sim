@@ -17,7 +17,7 @@ async function main() {
     throw new Error(
       "Node.js 22 or newer is required. Run `nvm use` before `npm run data:sync`.",
     );
-  const url = z.url().parse(process.env.NEXT_PUBLIC_SUPABASE_URL),
+  const url = z.url().parse(process.env.SUPABASE_URL),
     key = z.string().min(1).parse(process.env.SUPABASE_SERVICE_ROLE_KEY);
   const db = createClient(url, key, { auth: { persistSession: false } });
   const completed = new Set<string>();

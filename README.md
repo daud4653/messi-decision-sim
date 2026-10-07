@@ -141,18 +141,17 @@ Without Supabase, the simulator uses local processed JSON (or synthetic fixtures
 
 ## Environment reference
 
-| Variable                        | Purpose                                                                           |
-| ------------------------------- | --------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL                                                              |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supported public client key; direct answer access remains denied                  |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Server-only database access                                                       |
-| `LLM_PROVIDER`                  | `gemini` (default), `groq`, or `ollama`                                           |
-| `GEMINI_API_KEY`                | Server-only Gemini key                                                            |
-| `GROQ_API_KEY`                  | Server-only Groq key                                                              |
-| `GEMINI_MODEL`                  | Default `gemini-3.5-flash-lite`                                                   |
-| `GROQ_MODEL`                    | Default `openai/gpt-oss-20b`                                                      |
-| `OLLAMA_BASE_URL`               | Default `http://localhost:11434`; configured by the operator, never request input |
-| `OLLAMA_MODEL`                  | Installed local model name; required for Ollama mode                              |
+| Variable                    | Purpose                                                                           |
+| --------------------------- | --------------------------------------------------------------------------------- |
+| `SUPABASE_URL`              | Supabase project URL                                                              |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only database access                                                       |
+| `LLM_PROVIDER`              | `gemini` (default), `groq`, or `ollama`                                           |
+| `GEMINI_API_KEY`            | Server-only Gemini key                                                            |
+| `GROQ_API_KEY`              | Server-only Groq key                                                              |
+| `GEMINI_MODEL`              | Default `gemini-3.5-flash-lite`                                                   |
+| `GROQ_MODEL`                | Default `openai/gpt-oss-20b`                                                      |
+| `OLLAMA_BASE_URL`           | Default `http://localhost:11434`; configured by the operator, never request input |
+| `OLLAMA_MODEL`              | Installed local model name; required for Ollama mode                              |
 
 Environment is validated through Zod at Next.js startup. All secret-bearing modules import `server-only`. Missing provider credentials enable human-only play; malformed configured values fail startup. Provider requests time out, validate JSON with Zod, and never expose raw errors or keys to the browser.
 
