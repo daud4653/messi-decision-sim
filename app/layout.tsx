@@ -18,10 +18,10 @@ const body = localFont({
   display: "swap",
 });
 export const metadata: Metadata = {
-  title: "LA PULGA // Decision Simulator",
+  title: "Messi Decision Simulator",
   description:
     "Step into Messi’s boots. Make your decision, then reveal the recorded action.",
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/sticker.png" },
 };
 export default function RootLayout({
   children,
