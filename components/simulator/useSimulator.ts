@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState, startTransition } from "react";
+import { useEffect, useRef, useState, startTransition } from "react";
 import { startRound, submitDecision } from "@/app/play/actions";
 import type { Action, TargetZone, Reveal } from "@/lib/football/types";
 type Round = NonNullable<Awaited<ReturnType<typeof startRound>>>;
 export function useSimulator() {
+  const latestRequest = useRef(0);
   const [round, setRound] = useState<Round | null>(null),
     [era, setEra] = useState("ALL"),
     [seen, setSeen] = useState<string[]>([]),
@@ -15,10 +16,13 @@ export function useSimulator() {
     [complete, setComplete] = useState(false),
     [locked, setLocked] = useState(false);
   async function next(nextEra = era, previous = seen) {
+    const request = ++latestRequest.current;
     setBusy(true);
     setError("");
     try {
       const r = await startRound(nextEra, previous);
+      // Strict Mode can start two loads; an older response must not reset a choice.
+      if (request !== latestRequest.current) return;
       setRound(r);
       setComplete(!r);
       setSelected(null);
@@ -26,9 +30,10 @@ export function useSimulator() {
       setReveal(null);
       setLocked(false);
     } catch {
-      setError("Could not load this moment. Please try again.");
+      if (request === latestRequest.current)
+        setError("Could not load this moment. Please try again.");
     } finally {
-      setBusy(false);
+      if (request === latestRequest.current) setBusy(false);
     }
   }
   useEffect(() => {
