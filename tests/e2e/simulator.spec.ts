@@ -16,6 +16,7 @@ test("complete a round without leaking its answer", async ({ page }) => {
   await page.screenshot({
     path: `/tmp/lapulga-play-${test.info().project.name}.png`,
     fullPage: true,
+    animations: "disabled",
   });
   expect(
     await page.evaluate(
@@ -50,6 +51,7 @@ test("target selection, next moment, methodology and responsive layout", async (
   await page.screenshot({
     path: `/tmp/lapulga-reveal-${test.info().project.name}.png`,
     fullPage: true,
+    animations: "disabled",
   });
   await page.getByRole("button", { name: "NEXT MOMENT" }).click();
   await expect(
@@ -83,6 +85,7 @@ test("game menu artwork fits the viewport", async ({ page }) => {
   await page.screenshot({
     path: `/tmp/lapulga-home-${test.info().project.name}.png`,
     fullPage: true,
+    animations: "disabled",
   });
   expect(
     await page.evaluate(
@@ -124,17 +127,52 @@ test("three requested eras load their own seasons", async ({ page }) => {
       label.startsWith("Argentina")
         ? /2022/
         : label.includes("2018")
-          ? /2018\/2019/
-          : /201[01]\/201[12]/,
+          ? /2018\/(?:20)?19/
+          : /201[01]\/(?:20)?1[12]/,
     );
   }
   await page.screenshot({
     path: `/tmp/lapulga-eras-${test.info().project.name}.png`,
     fullPage: true,
+    animations: "disabled",
   });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+});
+
+test("target control stays aligned and reduced motion is respected", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await expect(page.locator(".hero-art .sticker")).toHaveAttribute(
+    "data-state",
+    "loaded",
+  );
+  expect(
+    await page
+      .locator(".hero-art .sticker")
+      .evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe("none");
+  await page.getByRole("link", { name: /START SIMULATION/ }).click();
+  const select = page.getByLabel(/TARGET ZONE/);
+  await select.focus();
+  await expect(select).toBeFocused();
+  await select.selectOption("FINAL CENTRE");
+  await expect(select).toHaveValue("FINAL CENTRE");
+  const field = await select.boundingBox();
+  const chevron = await page.locator(".select-field .icon").boundingBox();
+  expect(field).not.toBeNull();
+  expect(chevron).not.toBeNull();
+  expect(chevron!.x).toBeGreaterThan(field!.x);
+  expect(chevron!.x + chevron!.width).toBeLessThan(field!.x + field!.width);
+  expect(
+    Math.abs(chevron!.y + chevron!.height / 2 - field!.y - field!.height / 2),
+  ).toBeLessThan(1);
+  await expect(
+    page.getByRole("link", { name: "PLAY", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
 });

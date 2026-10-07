@@ -5,6 +5,7 @@ import {
   type TargetZone,
 } from "@/lib/football/types";
 import { StickerAsset } from "../stickers/StickerAsset";
+import { Icon } from "../Icon";
 import type { useSimulator } from "./useSimulator";
 const descriptions: Record<Action, string> = {
   PASS: "Find a teammate",
@@ -46,16 +47,21 @@ export function DecisionControls({
       <div className="lock-row">
         <label>
           TARGET ZONE <span>(OPTIONAL)</span>
-          <select
-            value={target ?? ""}
-            disabled={locked || busy}
-            onChange={(e) => setTarget((e.target.value as TargetZone) || null)}
-          >
-            <option value="">ACTION ONLY</option>
-            {ZONES.map((z) => (
-              <option key={z}>{z}</option>
-            ))}
-          </select>
+          <span className="select-field">
+            <select
+              value={target ?? ""}
+              disabled={locked || busy}
+              onChange={(e) =>
+                setTarget((e.target.value as TargetZone) || null)
+              }
+            >
+              <option value="">ACTION ONLY</option>
+              {ZONES.map((z) => (
+                <option key={z}>{z}</option>
+              ))}
+            </select>
+            <Icon name="chevron" />
+          </span>
         </label>
         <p>
           No defender positions are assumed.

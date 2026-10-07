@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icon } from "@/components/Icon";
 import { StickerAsset } from "@/components/stickers/StickerAsset";
 import { coverage } from "@/lib/simulator/repository";
 export const dynamic = "force-dynamic";
@@ -29,7 +30,7 @@ export default async function Home() {
           </p>
           <div className="hero-actions">
             <Link className="button primary" href="/play">
-              START SIMULATION <span>01</span>
+              START SIMULATION <Icon name="arrow" />
             </Link>
             <Link className="text-link" href="/methodology">
               HOW IT WORKS
@@ -43,11 +44,15 @@ export default async function Home() {
             YOU GET THE MOMENT BEFORE.
           </span>
           <StickerAsset name="barcelona2019" large />
-          <div className="art-number">EST. 1987</div>
-          <span className="art-tag">THE LITTLE GENIUS.</span>
+          <div className="art-number">
+            ROSARIO, ARGENTINA
+            <br />
+            EST. 1987
+          </div>
+          <span className="art-tag">El Diez.</span>
         </div>
       </section>
-      <section className="home-bottom">
+      <section className="home-bottom" aria-label="How to play">
         <div>
           <span className="step-number">01</span>
           <h2>READ THE GAME</h2>

@@ -24,9 +24,9 @@ export function Pitch({ scene }: { scene: PitchScene }) {
               d="M0 0 L5 2.5 L0 5"
               fill={
                 k === "actual"
-                  ? "#ccf36b"
+                  ? "#e4bc60"
                   : k === "ai"
-                    ? "#82c9e8"
+                    ? "#8bc9d3"
                     : k === "human"
                       ? "#f5eee1"
                       : "#789589"
@@ -35,9 +35,9 @@ export function Pitch({ scene }: { scene: PitchScene }) {
           </marker>
         ))}
       </defs>
-      <rect x="-7" y="-9" width="134" height="98" fill="#163f31" />
+      <rect x="-7" y="-9" width="134" height="98" fill="#174944" />
       {[0, 2, 4].map((i) => (
-        <rect key={i} x={i * 20} y="0" width="20" height="80" fill="#1b4738" />
+        <rect key={i} x={i * 20} y="0" width="20" height="80" fill="#1d514b" />
       ))}
       <g fill="none" stroke="#7a9c89" strokeWidth=".35">
         <rect width="120" height="80" />
@@ -70,9 +70,9 @@ export function Pitch({ scene }: { scene: PitchScene }) {
           fill="none"
           stroke={
             p.kind === "actual"
-              ? "#ccf36b"
+              ? "#e4bc60"
               : p.kind === "ai"
-                ? "#82c9e8"
+                ? "#8bc9d3"
                 : p.kind === "human"
                   ? "#f5eee1"
                   : "#789589"
@@ -87,11 +87,11 @@ export function Pitch({ scene }: { scene: PitchScene }) {
           <circle
             r="5.7"
             fill="none"
-            stroke="#ccf36b"
+            stroke="#e4bc60"
             strokeWidth=".4"
             strokeDasharray="1 1"
           />
-          <circle r="3.6" fill="#ccf36b" stroke="#132a20" strokeWidth=".7" />
+          <circle r="3.6" fill="#e4bc60" stroke="#132a20" strokeWidth=".7" />
           <text
             y="1.1"
             textAnchor="middle"
@@ -102,8 +102,10 @@ export function Pitch({ scene }: { scene: PitchScene }) {
             10
           </text>
           <text
-            y="-8"
-            textAnchor="middle"
+            y={p.position.y < 10 ? 10 : -8}
+            textAnchor={
+              p.position.x < 8 ? "start" : p.position.x > 112 ? "end" : "middle"
+            }
             fontSize="2.7"
             letterSpacing=".4"
             fill="#f5eee1"

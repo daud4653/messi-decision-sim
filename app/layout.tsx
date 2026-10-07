@@ -1,6 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import localFont from "next/font/local";
+import { Navigation } from "@/components/Navigation";
 import "./globals.css";
+const display = localFont({
+  src: "../public/fonts/Anton-Regular.ttf",
+  variable: "--font-display",
+  display: "swap",
+});
+const body = localFont({
+  src: [
+    { path: "../public/fonts/BarlowCondensed-Regular.ttf", weight: "400" },
+    { path: "../public/fonts/BarlowCondensed-SemiBold.ttf", weight: "600" },
+  ],
+  variable: "--font-body",
+  display: "swap",
+});
 export const metadata: Metadata = {
   title: "LA PULGA // Decision Simulator",
   description:
@@ -13,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
         <header className="site-header">
           <Link href="/" className="brand">
@@ -22,12 +37,12 @@ export default function RootLayout({
               LA PULGA<small>DECISION SIMULATOR</small>
             </span>
           </Link>
-          <nav aria-label="Main navigation">
-            <Link href="/play">PLAY</Link>
-            <Link href="/results">YOUR RESULTS</Link>
-            <Link href="/methodology">THE METHOD</Link>
-          </nav>
-          <span className="edition">FOOTBALL, FRAME BY FRAME.</span>
+          <Navigation />
+          <span className="edition">
+            A STUDY IN
+            <br />
+            FOOTBALL INSTINCT.
+          </span>
         </header>
         {children}
         <footer>

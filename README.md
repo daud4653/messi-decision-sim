@@ -25,6 +25,10 @@ Open http://localhost:3000. No credentials are needed for fixture mode. The six 
 
 [Mobile game menu](docs/screenshots/home-mobile.png) · [Desktop simulator](docs/screenshots/play-desktop.png)
 
+## Visual design
+
+A vintage match-programme palette pairs warm paper and oxblood with a petrol pitch and gold markers. Anton and Barlow Condensed are self-hosted under the SIL Open Font License (included in `public/fonts`). The interface uses explicit SVG controls, keyboard-visible focus, active navigation, sticker entrances and reveal transitions; reduced-motion settings disable animation.
+
 ## Architecture
 
 Next.js App Router + strict TypeScript, server components/actions, Tailwind CSS, Zod, Supabase PostgreSQL, and Vitest. No standalone backend or workers.
