@@ -6,7 +6,10 @@ A small football game built around the instant before an action: read the pitch,
 
 ## Run locally
 
+Use Node.js 22 or newer (the installed Supabase client requires native WebSocket support).
+
 ```sh
+nvm use
 npm install
 cp .env.example .env.local
 npm run dev
@@ -127,6 +130,8 @@ Pass mapping: `cross=true` takes precedence → CROSS; otherwise a pass ending a
 3. Set all Supabase values in `.env.local`.
 4. Run `npm run data:sync` after local ingestion and scenario generation.
 5. Restart Next.js.
+
+The migration creates tables only; it does not import match data. Run `npm run data:sync` with Node.js 22+ to populate them. For an interrupted upload of the same unchanged local dataset, use `npm run data:sync -- --resume`; it checks remote event counts and skips fully uploaded matches. Use the normal command to overwrite corrected source data. Uploads use bounded batches, retry transient errors, and report progress.
 
 Sync is idempotent through deterministic IDs and upserts. It uploads competitions, teams, players, matches, events, scenarios, and available enrichment. All tables use RLS; anonymous and authenticated database clients have **no direct privileges**. Next.js uses the server-only service-role client. Never create a public SELECT policy on scenarios, events, runs, or rounds: they contain answers.
 

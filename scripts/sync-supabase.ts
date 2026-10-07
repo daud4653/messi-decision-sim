@@ -1,13 +1,9 @@
-import nextEnv from "@next/env";
+import { loadEnvConfig } from "@next/env";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { readJson } from "./io";
 import { processedMatches } from "./processed-matches";
-import {
-  eventSchema,
-  matchSchema,
-  MESSI_ID,
-} from "../services/statsbomb/schema";
+import { MESSI_ID } from "../services/statsbomb/schema";
 import {
   stableId,
   eventTarget,
@@ -15,17 +11,54 @@ import {
 } from "../services/statsbomb/generate";
 import { enrichmentSchema, metricNames } from "../lib/enrichment/schema";
 import { scenarioSchema } from "../lib/football/types";
-nextEnv.loadEnvConfig(process.cwd());
+loadEnvConfig(process.cwd());
 async function main() {
+  if (Number(process.versions.node.split(".")[0]) < 22)
+    throw new Error(
+      "Node.js 22 or newer is required. Run `nvm use` before `npm run data:sync`.",
+    );
   const url = z.url().parse(process.env.NEXT_PUBLIC_SUPABASE_URL),
     key = z.string().min(1).parse(process.env.SUPABASE_SERVICE_ROLE_KEY);
   const db = createClient(url, key, { auth: { persistSession: false } });
+  const completed = new Set<string>();
+  if (process.argv.includes("--resume")) {
+    const { data, error } = await db.from("matches").select("id");
+    if (error) throw new Error(`Resume check failed: ${error.message}`);
+    for (const match of data) completed.add(match.id);
+  }
   async function upsert(table: string, rows: Record<string, unknown>[]) {
-    for (let i = 0; i < rows.length; i += 200) {
-      const { error } = await db
-        .from(table)
-        .upsert(rows.slice(i, i + 200), { onConflict: "id" });
-      if (error) throw new Error(`${table}: ${error.message}`);
+    // Bounded concurrency keeps a multi-season upload practical without flooding the API.
+    const batchSize = table === "scenarios" ? 200 : 1000;
+    for (let i = 0; i < rows.length; i += batchSize * 3) {
+      const batches = [0, batchSize, batchSize * 2]
+        .map((offset) => rows.slice(i + offset, i + offset + batchSize))
+        .filter((batch) => batch.length);
+      const results = await Promise.all(
+        batches.map(async (batch) => {
+          for (let attempt = 0; attempt < 6; attempt++) {
+            const { error, status } = await db
+              .from(table)
+              .upsert(batch, { onConflict: "id" });
+            if (!error) return null;
+            if (
+              attempt === 5 ||
+              (status !== 0 && status !== 429 && status < 500)
+            )
+              return `${table}: ${error.message}`;
+            console.log(`Retrying ${table} upload (${attempt + 1}/5)…`);
+            await new Promise((resolve) =>
+              setTimeout(resolve, 1000 * 2 ** attempt),
+            );
+          }
+          return null;
+        }),
+      );
+      const error = results.find(Boolean);
+      if (error) throw new Error(error);
+      if (table === "scenarios")
+        console.log(
+          `Synced scenarios ${Math.min(i + batchSize * 3, rows.length)}/${rows.length}`,
+        );
     }
   }
   let matchCount = 0;
@@ -35,6 +68,20 @@ async function main() {
         `competition:${m.competition.competition_id}:${m.season.season_id}`,
       ),
       matchId = stableId(`match:${m.match_id}`);
+    if (completed.has(matchId)) {
+      // Keep the count indexed and small rather than aggregating the entire event table.
+      const { count, error } = await db
+        .from("events")
+        .select("id", { count: "exact", head: true })
+        .eq("match_id", matchId);
+      if (error) throw new Error(`Resume count failed: ${error.message}`);
+      if (count === events.length) {
+        console.log(
+          `Verified match ${matchCount}: ${m.match_id} already uploaded`,
+        );
+        continue;
+      }
+    }
     await upsert("competitions", [
       {
         id: compId,
@@ -115,10 +162,14 @@ async function main() {
         };
       }),
     );
+    console.log(
+      `Synced match ${matchCount}: ${m.match_id} (${events.length} events)`,
+    );
   }
   const scenarios = scenarioSchema
     .array()
     .parse(await readJson("data/processed/scenarios.json"));
+  console.log(`Uploading ${scenarios.length} scenarios…`);
   await upsert(
     "scenarios",
     scenarios.map((s) => ({
